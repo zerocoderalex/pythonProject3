@@ -1,3 +1,5 @@
+from fnmatch import translate
+
 import requests
 from bs4 import BeautifulSoup
 from googletrans import Translator
@@ -20,18 +22,21 @@ def get_english_words():
         print("Произошла ошибка")
 
 def word_game():
+    translator = Translator()
     print("Добро пожаловать в игру!")
     while True:
         word_dict = get_english_words()
         word = word_dict.get("english_words")
         word_definition = word_dict.get("word_definition")
+        result = translator.translate(word_definition, dest="ru").text.strip()
+        trans_word = translator.translate(word, dest="ru").text.strip()
 
-        print(f"Значение слова - {word_definition}")
+        print(f"Значение слова - {result}")
         user = input("Что это за слово? ")
-        if user == word:
+        if user == trans_word:
             print("Все верно!")
         else:
-            print(f"Ответ неверный, правильное слово -{word}")
+            print(f"Ответ неверный, правильное слово -{trans_word}")
         play_again = input("Хотите сыграть еще? y/n")
         if play_again != "y":
             print("Спасибо за игру!")
