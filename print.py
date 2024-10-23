@@ -11,7 +11,7 @@ url = "https://www.divan.ru/kazan/category/svet"
 def append_parsed_data(url):
     print("Start parsing")
     browser.get(url)
-    # time.sleep(5)
+    time.sleep(10)
 
     lights = browser.find_elements(By.CSS_SELECTOR,"div._Ud0k")
     for light in lights:
