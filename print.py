@@ -1,34 +1,48 @@
 import time
-import csv
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+import csv
 
-driver = webdriver.Chrome()
-
-url = "https://tomsk.hh.ru/vacancies/programmist"
-
-driver.get(url)
-
-time.sleep(3)
-
-vacancies = driver.find_elements(By.CLASS_NAME, 'vacancy-card--H8LvOiOGPll0jZvYpxIF')
-
-print(vacancies)
+browser = webdriver.Chrome()
 parsed_data = []
-for vacancy in vacancies:
-    try:
-        title = vacancy.find_elements(By.CSS_SELECTOR, 'span.vacancy-name--SYbxrgpHgHedVTkgI_cA').text
-        salary = vacancy.find_elements(By.CSS_SELECTOR, 'span.compensation-text--cCPBXayRjn5GuLFWhGTJ').text
-        link = vacancy.find_elements(By.CSS_SELECTOR, 'a.bloko-link').get_attribute('href')
-    except:
-        print('Произошла ошибка парсинга')
-        continue
+url = "https://www.divan.ru/kazan/category/svet"
 
-    parsed_data.append([title, salary, link])
+#Функция для добавления данных в parsed_data
+def append_parsed_data(url):
+    print("Start parsing")
+    browser.get(url)
+    # time.sleep(5)
 
-driver.quit()
+    lights = browser.find_elements(By.CSS_SELECTOR,"div._Ud0k")
+    for light in lights:
+        try:
+            name = light.find_element(By.CSS_SELECTOR,"div.lsooF").find_element(By.TAG_NAME,'span').text
+            price = light.find_element(By.CSS_SELECTOR,"div.q5Uds").find_element(By.TAG_NAME,"span").text
+            price = price.strip('руб.') #убираем символы руб
+            price = "".join(price.split()) #убираем пробел между разрядами: 20 100 -> 20100
+            price = float(price) #переводим в число
+            link = light.find_element(By.TAG_NAME,'a').get_attribute("href")
+            # print([name, price, link])
+        except:
+            print("Произошла ошибка при парсинге")
+            continue
+        parsed_data.append([name,price,link])
+    print("Finish parsing of one page")
 
-with open("hh.csv", 'w', newline='', encoding='utf-8') as file:
-    writer = csv.writer(file)
-    writer.writerow(['Название вакансии', 'зарплата', 'ссылка на вакансию'])
-    writer.writerows(parsed_data)
+#Функция для записи в файл
+def write_data_to_csv(parsed_data,filename):
+    with open(filename,'w',encoding='utf-16') as file:
+        writer = csv.writer(file)
+        writer.writerow(['Название', 'Цена', 'Ссылка'])
+        writer.writerows(parsed_data)
+    print("File was written")
+
+#Парсим данные с 4-х страниц сайта
+append_parsed_data(url)
+append_parsed_data(url+'/page-2')
+append_parsed_data(url+'/page-3')
+append_parsed_data(url+'/page-4')
+browser.quit()
+
+#Записываем данные в файл
+write_data_to_csv(parsed_data,'lights.csv')
