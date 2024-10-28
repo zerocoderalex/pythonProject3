@@ -1,14 +1,27 @@
+from idlelib.iomenu import encoding
+
 import pandas as pd
+import matplotlib.pyplot as plt
 
-df = pd.read_csv('animal.csv')
-print(df.head())
-print(df.info())
-print(df.describe())
+file_path = 'prices.csv'
 
-df = pd.read_csv('dz.csv')
+data = pd.read_csv(file_path, encoding='utf-16')
 
-df.fillna(value=0, inplace=True)
-midlsalary = df.groupby('City')['Salary'].mean()
 
-print(midlsalary)
+prices = data['Цена']
+average_price = prices.mean()
+print(f'Средняя цена: {average_price}')
+
+plt.hist(prices, bins=10, edgecolor='black')
+
+plt.title('Гистограмма цен')
+plt.xlabel('Цена')
+plt.ylabel('Частота')
+
+plt.show()
+
+
+
+
+
 
